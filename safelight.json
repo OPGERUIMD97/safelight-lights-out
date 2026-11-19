@@ -1,0 +1,13 @@
+{
+  "id": "safelight-lights-out",
+  "name": "Lights Out",
+  "version": "1.0.0",
+  "description": "Dim or black out everything except the photo. L cycles three steps. Click or Esc restores the interface.",
+  "author": "OPGERUIMD97",
+  "main": "index.js",
+  "categories": ["Workflow"],
+  "keywords": ["lights out", "dim", "loupe", "shortcut"],
+  "license": "MIT",
+  "repository": "OPGERUIMD97/safelight-lights-out",
+  "minAppVersion": "3.2.0"
+}
