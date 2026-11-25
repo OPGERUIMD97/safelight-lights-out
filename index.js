@@ -9,7 +9,9 @@
 // (ViewportImage in DevelopCanvas). Its CSS transform is included in
 // getBoundingClientRect, and the result is clipped to the viewport so a zoomed
 // photo does not uncover the panels. Library has no single photo canvas, so
-// the hole there is [data-dock-main]: the grid stays up and the panels dim.
+// when "Also in Library" is on the hole there is [data-dock-main]: the grid
+// stays up and the panels dim. That switch is off by default, and L does
+// nothing in Library.
 
 const EXT = "safelight-lights-out";
 const VEILS = { black: "#000000", grey: "#3a3a3a" };
@@ -21,6 +23,7 @@ let shade = null;
 let raf = 0;
 let onKey = null;
 let onPointer = null;
+let unsubModule = null;
 
 export function activate(host) {
   api = host;
@@ -50,12 +53,27 @@ export function activate(host) {
           { value: "grey", label: "Grey" },
         ],
       },
+      {
+        key: "inLibrary",
+        label: "Also in Library",
+        hint: "Off by default. L then does nothing in Library and leaves the grid alone. Develop is unchanged.",
+        type: "boolean",
+        default: false,
+      },
     ],
   });
 
   api.settings.onChange(() => {
-    if (mode !== 0) paint();
+    if (mode !== 0 && libraryBlocked()) setMode(0);
+    else if (mode !== 0) paint();
   });
+
+  const store = api.stores && api.stores.useUIStore;
+  if (store && typeof store.subscribe === "function") {
+    unsubModule = store.subscribe(() => {
+      if (mode !== 0 && libraryBlocked()) setMode(0);
+    });
+  }
 
   api.registerKeybinding({
     id: `${EXT}.cycle`,
@@ -63,14 +81,28 @@ export function activate(host) {
     category: "General",
     defaultCombo: "L",
     handler() {
+      if (libraryBlocked()) return;
       setMode((mode + 1) % 3);
     },
   });
 }
 
 export function deactivate() {
+  if (typeof unsubModule === "function") unsubModule();
+  unsubModule = null;
   setMode(0);
   api = null;
+}
+
+function inLibrary() {
+  const store = api && api.stores && api.stores.useUIStore;
+  if (!store || typeof store.getState !== "function") return false;
+  return store.getState().activeModule === "library";
+}
+
+function libraryBlocked() {
+  if (api && api.settings.get("inLibrary") === true) return false;
+  return inLibrary();
 }
 
 function readLook() {
