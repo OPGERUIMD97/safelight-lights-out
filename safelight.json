@@ -1,8 +1,8 @@
 {
   "id": "safelight-lights-out",
   "name": "Lights Out",
-  "version": "1.0.0",
-  "description": "Dim or black out everything except the photo. L cycles three steps. Click or Esc restores the interface.",
+  "version": "1.0.1",
+  "description": "Dim or black out everything except the photo. L cycles three steps. The photo still zooms and pans. Click the dimmed area or Esc to restore.",
   "author": "OPGERUIMD97",
   "main": "index.js",
   "categories": ["Workflow"],

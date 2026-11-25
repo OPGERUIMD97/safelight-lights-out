@@ -6,7 +6,7 @@ Dim or cover the Safelight interface so the photo is all you see. Three steps, s
 2. Everything except the photo is covered completely.
 3. The interface is back to normal.
 
-**L** cycles the steps. The key can be changed in **Preferences ▸ Shortcuts** (General ▸ Lights Out). **Click** or **Esc** returns to normal from either dimmed step.
+**L** cycles the steps. The key can be changed in **Preferences ▸ Shortcuts** (General ▸ Lights Out). Clicking the dimmed interface, or **Esc**, returns to normal. The photo itself stays usable: scroll to zoom, and drag to pan.
 
 Dim amount, veil colour and Library are in **Preferences ▸ Extensions ▸ Lights Out**.
 

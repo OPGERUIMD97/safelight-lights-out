@@ -24,6 +24,7 @@ let raf = 0;
 let onKey = null;
 let onPointer = null;
 let unsubModule = null;
+let bands = null;
 
 export function activate(host) {
   api = host;
@@ -146,10 +147,44 @@ function holeRect() {
   return rectOf(document.querySelector("[data-dock-main]"));
 }
 
+function place(el, left, top, width, height) {
+  if (width < 1 || height < 1) {
+    el.style.display = "none";
+    return;
+  }
+  el.style.display = "block";
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+  el.style.width = `${width}px`;
+  el.style.height = `${height}px`;
+}
+
+// Four bands around the photo. The hole itself has no element, so the wheel,
+// clicks and drags reach the canvas: zoom and pan keep working.
+function layoutBands(hole) {
+  if (!bands) return;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  if (!hole) {
+    place(bands[0], 0, 0, width, height);
+    bands[1].style.display = "none";
+    bands[2].style.display = "none";
+    bands[3].style.display = "none";
+    return;
+  }
+  const right = hole.left + hole.width;
+  const bottom = hole.top + hole.height;
+  place(bands[0], 0, 0, width, hole.top);
+  place(bands[1], 0, hole.top, hole.left, hole.height);
+  place(bands[2], right, hole.top, width - right, hole.height);
+  place(bands[3], 0, bottom, width, height - bottom);
+}
+
 function paint() {
   if (!shade) return;
   const { color, alpha } = readLook();
   const hole = holeRect();
+  layoutBands(hole);
   if (!hole) {
     shade.style.left = "0";
     shade.style.top = "0";
@@ -187,22 +222,24 @@ function ensureOverlay() {
   shade.setAttribute("aria-hidden", "true");
   Object.assign(shade.style, { position: "fixed", pointerEvents: "none" });
 
-  const catcher = document.createElement("div");
-  Object.assign(catcher.style, {
-    position: "absolute",
-    inset: "0",
-    pointerEvents: "auto",
-    cursor: "default",
-    background: "transparent",
-  });
   onPointer = (event) => {
     event.preventDefault();
     event.stopPropagation();
     setMode(0);
   };
-  catcher.addEventListener("pointerdown", onPointer);
+  bands = [0, 1, 2, 3].map(() => {
+    const band = document.createElement("div");
+    Object.assign(band.style, {
+      position: "fixed",
+      pointerEvents: "auto",
+      cursor: "default",
+      background: "transparent",
+    });
+    band.addEventListener("pointerdown", onPointer);
+    return band;
+  });
 
-  root.append(shade, catcher);
+  root.append(shade, ...bands);
   document.body.append(root);
 
   onKey = (event) => {
@@ -224,6 +261,7 @@ function removeOverlay() {
   if (root) root.remove();
   root = null;
   shade = null;
+  bands = null;
 }
 
 function setMode(next) {
